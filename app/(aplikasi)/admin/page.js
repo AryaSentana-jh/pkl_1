@@ -9,16 +9,8 @@ import Ikon from "@/components/Ikon";
 import Memuat from "@/components/Memuat";
 import Gagal from "@/components/Gagal";
 
-/**
- * Dasbor HRD (PRD 4.6). SENGAJA tanpa pemeriksaan peran; route guard dikerjakan di Sesi 6.
- * Kartu Cuti menunggu dibuat paling besar karena memutuskan cuti adalah tugas utama HRD pagi hari.
- *
- * HRD dashboard (PRD 4.6). DELIBERATELY has no role check; the route guard is built in Session 6.
- * The pending-leave card is the largest because deciding leave is HRD's main morning task.
- */
 export default function HalamanDasborHrd() {
   const { status, data, cobaLagi } = useAmbilData(async () => {
-    // Tanggal dihitung di sini supaya tidak terkunci di tanggal build / Computed here so it is not frozen at build date
     const hariIni = tanggalHariIni();
     return { hariIni, ...(await ambilRingkasanDasbor(hariIni)) };
   });
@@ -31,6 +23,7 @@ export default function HalamanDasborHrd() {
       {status === "gagal" && <Gagal onCobaLagi={cobaLagi} />}
       {status === "berhasil" && (
         <div className="grid gap-6 md:grid-cols-2">
+          {/* Cuti Biasa Menunggu */}
           <Link
             href="/admin/cuti?status=menunggu"
             className="kartu group flex flex-col justify-between gap-6 bg-kunyit p-8 transition hover:shadow-md md:row-span-2"
@@ -38,14 +31,35 @@ export default function HalamanDasborHrd() {
             <div>
               <p className="text-sm font-semibold tracking-wide text-tinta uppercase">Cuti menunggu</p>
               <p className="mt-2 text-6xl leading-none font-bold text-tinta tabular-nums">{data.cutiMenunggu}</p>
-              <p className="mt-2 text-lg font-bold text-tinta">pengajuan perlu diputuskan</p>
+              <p className="mt-2 text-lg font-bold text-tinta">pengajuan cuti perlu diputuskan</p>
             </div>
-            <span className="tombol-utama self-start ">
+            <span className="tombol-utama self-start">
               <Ikon nama="centang" />
               Putuskan sekarang
             </span>
           </Link>
 
+          {/* Tukar Cuti Menunggu */}
+          <Link
+            href="/admin/tukar-cuti?status=menunggu_hrd"
+            className="kartu group flex items-center justify-between gap-5 border-2 border-blue-400 bg-blue-50 p-6 text-blue-950 transition hover:shadow-md"
+          >
+            <div className="flex items-center gap-4">
+              <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-blue-600 text-white shadow-tipis">
+                <Ikon nama="tukar" className="h-7 w-7" />
+              </span>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Tukar Cuti Menunggu</p>
+                <p className="text-3xl font-black tabular-nums text-blue-950">{data.tukarCutiMenunggu || 0}</p>
+                <p className="text-xs font-semibold text-blue-800">perlu keputusan HRD</p>
+              </div>
+            </div>
+            <span className="rounded-xl bg-blue-600 px-3 py-1.5 text-xs font-bold text-white shadow-tipis group-hover:bg-blue-700">
+              Periksa ➜
+            </span>
+          </Link>
+
+          {/* Kehadiran */}
           <Link href="/admin/laporan" className="kartu group flex items-center gap-5 bg-sedap p-6 text-white transition hover:shadow-md">
             <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-tinta/10 bg-white text-sedap">
               <Ikon nama="jam" className="h-7 w-7" />
@@ -57,6 +71,7 @@ export default function HalamanDasborHrd() {
             </div>
           </Link>
 
+          {/* Karyawan */}
           <Link href="/admin/karyawan" className="kartu group flex items-center gap-5 bg-terong p-6 text-white transition hover:shadow-md">
             <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-tinta/10 bg-white text-terong">
               <Ikon nama="tim" className="h-7 w-7" />
