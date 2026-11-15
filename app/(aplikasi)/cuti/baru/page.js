@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { usePengguna } from "@/lib/pengguna";
-import { ambilKuotaCuti, simpanPengajuanCuti } from "@/lib/data";
+import { ambilKuotaCuti, simpanPengajuanCuti, kirimWaHrd } from "@/lib/data";
 import { lamaHari } from "@/lib/waktu";
 import KepalaHalaman from "@/components/KepalaHalaman";
 import Ikon from "@/components/Ikon";
@@ -54,12 +54,15 @@ export default function HalamanAjukanCuti() {
 
     try {
       setTersimpan(true);
-      await simpanPengajuanCuti({
+      const hasil = await simpanPengajuanCuti({
         karyawanId: pengguna.uid,
         tanggalMulai: isian.tanggalMulai,
         tanggalSelesai: isian.tanggalSelesai,
         alasan: isian.alasan,
       });
+
+      // Kirim notifikasi WhatsApp ke HRD
+      kirimWaHrd(hasil);
 
       setTimeout(() => {
         setIsian(kosong);
