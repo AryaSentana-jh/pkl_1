@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useAmbilData } from "@/lib/useAmbilData";
-import { ambilSemuaPengajuan } from "@/lib/data";
+import { ambilSemuaPengajuan, kirimWaKeputusanCuti } from "@/lib/data";
 import { formatTanggal, lamaHari } from "@/lib/waktu";
 import KepalaHalaman from "@/components/KepalaHalaman";
 import Ikon from "@/components/Ikon";
@@ -36,6 +36,15 @@ export default function HalamanPersetujuanCuti() {
   function putuskan(c, statusBaru) {
     setKeputusan({ ...keputusan, [c.id]: statusBaru });
     setPesan(`${c.id} milik ${c.nama} ${statusBaru} (contoh, belum tersimpan).`);
+
+    // Kirim notifikasi WhatsApp ke karyawan yang mengajukan
+    kirimWaKeputusanCuti({
+      karyawanId: c.karyawanId,
+      tanggalMulai: c.tanggalMulai,
+      tanggalSelesai: c.tanggalSelesai,
+      status: statusBaru,
+      catatanHrd: catatan[c.id] ?? c.catatanHrd,
+    });
   }
 
   // Pengajuan yang baru diputuskan keluar dari saringan Menunggu / Freshly decided requests drop out of the Menunggu filter
